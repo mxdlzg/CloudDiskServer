@@ -5,15 +5,20 @@
  * Date: 2018/5/3
  * Time: 21:29
  */
-spl_autoload_register(function ($class_name) {
-    require_once $class_name . '.php';
-});
+require_once "UserRequest.php";
 
+//SESSION
+session_start();
+
+//PARAMS
 $type = $_POST["type"];
 
 switch ($type){
     case "login":
-        Login::doLogin($_POST["user"],$_POST["pass"]);
+        UserRequestRespond::doLogin($_POST["user"],$_POST["pass"]);
+        break;
+    case "logout":
+        UserRequestRespond::doLogout($_POST["token"],$_POST["user"]);
         break;
     default:break;
 }

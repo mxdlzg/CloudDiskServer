@@ -12,14 +12,28 @@ interface Res{
 
 class ServerRespond{
     /**
-     * ServerRespond constructor.
+     * Write json response to user browser
+     * @param $result
      */
-    public function __construct()
-    {
-
+    public static function doRespond($result){
+        echo json_encode($result);
     }
 
-    public static function doRespond($result){
-        echo $result;
+    /**
+     * Create general response
+     * @param $nameArr
+     * @param $valueArr
+     * @return array
+     */
+    static function createResult($nameArr,$valueArr){
+        $result = array();
+        if ($valueArr!=null && count($valueArr) == count($nameArr)){
+            for ($index = 0;$index<count($nameArr);$index++){
+                if ($valueArr[$index] != null){
+                    $result[$nameArr[$index]] = $valueArr[$index];
+                }
+            }
+        }
+        return $result;
     }
 }

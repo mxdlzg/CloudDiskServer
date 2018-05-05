@@ -25,6 +25,12 @@ class DBUserResult{
 }
 
 class DBUserAction implements LoginStd{
+
+    /**
+     * @param $userName
+     * @param $pass
+     * @return mixed
+     */
     public static function checkUser($userName, $pass)
     {
         if ($userName == "mxdlzg" && $pass == "qqtang159"){
@@ -33,6 +39,11 @@ class DBUserAction implements LoginStd{
         return new DBResult(new DBUserResult(false,false));
     }
 
+    /**
+     * @param $timeStamp
+     * @param $randomStr
+     * @return mixed
+     */
     public function arithmetic($timeStamp, $randomStr)
     {
         // TODO: Implement arithmetic() method.

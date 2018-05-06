@@ -11,4 +11,8 @@ class Key
     const TYPE = "type";
     const TOKEN = "token";
     const MSG = "msg";
+    const STATUS = "status";
+    const PARENT_PATH = "parentPath";
+    const DATA = "data";
+    const CLIENT_TYPE = "clientType";
 }

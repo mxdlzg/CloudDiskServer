@@ -27,7 +27,10 @@ class UserRequestRespond extends ServerRespond{
         if ($action->checkUser($userName,$pass)){
             $token = md5($userName);
             if (!isset($_SESSION[Key::TOKEN])){
+                //SET
                 $_SESSION[Key::TOKEN] = $token;
+                setcookie(Key::TOKEN,$token,time()+1800);
+                //Result
                 $result[Key::TOKEN] = $_SESSION["token"];
                 $result[Key::MSG] = "新用户登陆";
             }else{

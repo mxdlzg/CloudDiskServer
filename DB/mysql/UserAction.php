@@ -6,7 +6,9 @@
  * Time: 21:05
  */
 
-require_once "DBStd.php";
+
+require_once __ROOT__."/DB/mysql/DBStd.php";
+require_once __ROOT__."/DB/mysql/DB.php";
 
 class DBUserResult{
     public $userExisted = false;
@@ -28,12 +30,15 @@ class DBUserAction implements LoginStd{
 
     /**
      * @param $userName
-     * @param $pass
+     * @param $encryptedPass
      * @return mixed
      */
-    public static function checkUser($userName, $pass)
+    public static function checkUser($userName, $encryptedPass)
     {
-        if ($userName == "mxdlzg" && $pass == "qqtang159"){
+        $db = new DB();
+        $data = $db->instance->select("cd_user",["User_ID"],["User"=>$userName,"Pass_En"=>$encryptedPass]);
+
+        if (count($data) == 1){
             return new DBResult(new DBUserResult(true,true));
         }
         return new DBResult(new DBUserResult(false,false));
@@ -47,5 +52,6 @@ class DBUserAction implements LoginStd{
     public function arithmetic($timeStamp, $randomStr)
     {
         // TODO: Implement arithmetic() method.
+        return null;
     }
 }

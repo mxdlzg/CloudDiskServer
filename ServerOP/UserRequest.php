@@ -5,11 +5,13 @@
  * Date: 2018/5/3
  * Time: 21:22
  */
+
+require_once "../Global.php";
 require_once "Respond.php";
-require_once "../DB/mysql/UserAction.php";
-require_once "../DB/model/entity/DBResult.php";
-require_once "../DB/model/entity/ActionType.php";
-require_once "../DB/model/entity/Key.php";
+require_once __ROOT__."/DB/mysql/UserAction.php";
+require_once __ROOT__."/DB/model/entity/DBResult.php";
+require_once __ROOT__."/DB/model/entity/ActionType.php";
+require_once __ROOT__."/DB/model/entity/Key.php";
 
 define("RESULT",['type','token','msg']);
 
@@ -25,7 +27,7 @@ class UserRequestRespond extends ServerRespond{
         $result[Key::TYPE] = ActionType::LOGIN_RESULT;
 
         if ($action->checkUser($userName,$pass)){
-            $token = md5($userName);
+            $token = md5($userName);    //TODO::arithmetic
             if (!isset($_SESSION[Key::TOKEN])){
                 //SET
                 $_SESSION[Key::TOKEN] = $token;
@@ -74,7 +76,7 @@ class UserRequestRespond extends ServerRespond{
      * @return bool
      */
     function checkUser($user,$pass){
-        $rst = DBUserAction::checkUser($user,$pass); #type: DBUserResult
+        $rst = DBUserAction::checkUser($user,md5($pass)); #type: DBUserResult
         if ($rst->data->userExisted && $rst->data->passValid){
             return true;
         }

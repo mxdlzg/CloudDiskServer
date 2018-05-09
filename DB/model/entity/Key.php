@@ -13,6 +13,7 @@ class Key
     const MSG = "msg";
     const STATUS = "status";
     const PARENT_PATH = "parentPath";
+    const PARENT_DIR_ID = "parentDirID";
     const DATA = "data";
     const CLIENT_TYPE = "clientType";
 }

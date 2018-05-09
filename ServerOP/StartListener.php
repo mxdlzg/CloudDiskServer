@@ -6,6 +6,7 @@
  * Time: 21:29
  */
 require_once "UserRequest.php";
+require_once "FileRequest.php";
 require_once "../DB/model/entity/Key.php";
 
 //SESSION
@@ -41,10 +42,10 @@ if ($type === "login"){
             UserRequestRespond::doLogout($_POST["token"],$_POST["user"]);
             break;
         case "getDir":
-            FileRequestRespond::getDir($_POST[Key::PARENT_PATH]);
+            FileRequestRespond::getDir($_POST[Key::PARENT_DIR_ID]);
             break;
         case "getFile":
-            FileRequestRespond::getFile($_POST[Key::PARENT_PATH]);
+            FileRequestRespond::getFile($_POST[Key::PARENT_DIR_ID]);
             break;
         case "download":
             FileRequestRespond::createDownloadLink($_POST[Key::DATA]);

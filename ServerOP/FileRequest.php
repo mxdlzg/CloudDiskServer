@@ -6,7 +6,9 @@
  * Time: 13:10
  */
 
+require_once "../Global.php";
 require_once "../lib/aliyun-oss-php-sdk-2.3.0.phar";
+require_once __ROOT__."/DB/mysql/FileAction.php";
 
 use OSS\OssClient;
 use OSS\Core\OssException;
@@ -15,18 +17,21 @@ class FileRequestRespond extends ServerRespond{
     private $ossClient;
     private $bucket;
 
-    public static function getDir($parentPath){
+    public static function getDir($parentDirID){
         //Fetch dir from db
-        $dirList = FileAction::scanDir($parentPath);
+        $dirList = FileAction::scanDir($parentDirID);
+
+        //result
+//        $result = array();
 
         //Respond
         self::doRespond(self::createArray(ActionType::FILE_REQUEST_DIR,$dirList));
     }
 
-    public static function getFile($parentPath)
+    public static function getFile($parentDirID)
     {
         //Fetch dir from db
-        $fileList = FileAction::scanFile($parentPath);
+        $fileList = FileAction::scanFile($parentDirID);
 
         //Respond
         self::doRespond(self::createArray(ActionType::FILE_REQUEST_FILE,$fileList));

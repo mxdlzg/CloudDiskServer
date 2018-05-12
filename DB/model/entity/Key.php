@@ -16,4 +16,11 @@ class Key
     const PARENT_DIR_ID = "parentDirID";
     const DATA = "data";
     const CLIENT_TYPE = "clientType";
+    const FILES = "files";
+    const NODE_ID = "nodeId";
+    const PATH = "path";
+    const BUCKET_PATH = "bucketPath";
+    const HASH = "hash";
+    const NAME = "name";
+    const DIRS = "dirs";
 }

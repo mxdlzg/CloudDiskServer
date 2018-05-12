@@ -20,4 +20,6 @@ class ActionType
 class Status{
     const TOKEN_INVALID = 1;
     const TOKEN_NOT_EXISTED = 2;
+    const CREATE_DOWNLOAD_LINK_FAIL = 3;
+    const CREATE_DOWNLOAD_LINK_SUCCESS = 4;
 }

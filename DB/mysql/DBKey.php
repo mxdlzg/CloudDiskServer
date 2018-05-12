@@ -20,3 +20,8 @@ define("Directory_Name","Directory_Name");
 define("Node_True_ID","Node_True_ID");
 define("cd_file","cd_file");
 define("File_ID","File_ID");
+define("cd_zip_cache","cd_zip_cache");
+define("Cache_ID","Cache_ID");
+define("Oss_Request_Url","Oss_Request_Url");
+define("Cache_Size","Cache_Size");
+define("Cache_Time","Cache_Time");

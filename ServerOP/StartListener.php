@@ -8,7 +8,7 @@
 require_once "UserRequest.php";
 require_once "FileRequest.php";
 require_once "../DB/model/entity/Key.php";
-
+error_reporting(E_ALL^E_NOTICE^E_WARNING);
 //SESSION
 session_start();
 
@@ -50,7 +50,9 @@ if ($type === "login"){
         case "download":
             FileRequestRespond::createDownloadLink($_POST[Key::DATA]);
             break;
-        default:break;
+        default:
+            echo json_decode("{type:-1,msg:'无对应操作'}");
+            break;
     }
 }
 

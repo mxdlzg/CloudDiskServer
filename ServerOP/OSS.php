@@ -28,7 +28,7 @@ class OSSKey extends ServerRespond
         $callbackUrl = ossCallbackUrl;
 
         $callback_param = array('callbackUrl' => $callbackUrl,
-            'callbackBody' => 'filename=${object}&size=${size}&mimeType=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}',
+            'callbackBody' => 'filename=${object}&size=${size}&mimeType=${mimeType}&etag=${etag}',
             'callbackBodyType' => "application/x-www-form-urlencoded");
         $callback_string = json_encode($callback_param);
 

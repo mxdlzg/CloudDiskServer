@@ -22,4 +22,7 @@ class Status{
     const TOKEN_NOT_EXISTED = 2;
     const CREATE_DOWNLOAD_LINK_FAIL = 3;
     const CREATE_DOWNLOAD_LINK_SUCCESS = 4;
+    const LOGIN_SUCCESS = 5;
+    const HAS_LOGIN = 6;
+    const LOGIN_FAIL = 7;
 }

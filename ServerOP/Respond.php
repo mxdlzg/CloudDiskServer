@@ -1,4 +1,3 @@
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <?php
 /**
  * Created by PhpStorm.
@@ -16,6 +15,9 @@ class ServerRespond{
      * @param $result
      */
     public static function doRespond($result){
+        header("Content-Type: text/html; charset=utf-8");
+        header("Access-Control-Allow-Origin: *");
+
         echo json_encode($result);
     }
 

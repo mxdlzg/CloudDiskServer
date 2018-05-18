@@ -23,4 +23,5 @@ class Key
     const HASH = "hash";
     const NAME = "name";
     const DIRS = "dirs";
+    const WITH_COOKIE = "withCookie";
 }

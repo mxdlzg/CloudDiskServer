@@ -31,14 +31,17 @@ class UserRequestRespond extends ServerRespond{
             if (!isset($_SESSION[Key::TOKEN])){
                 //SET
                 $_SESSION[Key::TOKEN] = $token;
-                setcookie(Key::TOKEN,$token,time()+1800);
+                setcookie(Key::TOKEN,$result[Key::TOKEN],time()+3600,"/");
                 //Result
                 $result[Key::TOKEN] = $_SESSION["token"];
+                $result[Key::STATUS] = Status::LOGIN_SUCCESS;
                 $result[Key::MSG] = "新用户登陆";
             }else{
+                $result[Key::STATUS] = Status::HAS_LOGIN;
                 $result[Key::MSG] = "用户已登录";
             }
         }else{
+            $result[Key::STATUS] = Status::LOGIN_FAIL;
             $result[Key::MSG] = "用户验证失败";
         }
         $action->doRespond($result);

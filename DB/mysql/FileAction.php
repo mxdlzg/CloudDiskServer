@@ -26,8 +26,8 @@ class FileAction
         $rst = $db->instance->select(cd_tree, [
             left_join . cd_directory => [Node_True_ID => Directory_ID],
         ], [
-            cd_tree . dot . Node_ID,
-            cd_directory . dot . Directory_Name
+            cd_tree . dot . Node_ID."(".Key::NODE_ID.")",
+            cd_directory . dot . Directory_Name."(".Key::NAME.")",
         ], [
             Node_Type => "dir",
             Ancestor_Node_ID => $parentNodeID,

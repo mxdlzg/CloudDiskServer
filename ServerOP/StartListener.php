@@ -34,6 +34,7 @@ if ($type === "login"){
         $rst[Key::STATUS] = Status::TOKEN_INVALID;
         $rst[Key::MSG] = "令牌匹配失败,请重新登陆";
         ServerRespond::doRespond($rst);
+        return;
     }
     switch ($type){
         case "login":

@@ -31,7 +31,7 @@ class UserRequestRespond extends ServerRespond{
             if (!isset($_SESSION[Key::TOKEN])){
                 //SET
                 $_SESSION[Key::TOKEN] = $token;
-                setcookie(Key::TOKEN,$result[Key::TOKEN],time()+3600,"/");
+                setcookie(Key::TOKEN,$token,time()+3600,"/");
                 //Result
                 $result[Key::TOKEN] = $_SESSION["token"];
                 $result[Key::STATUS] = Status::LOGIN_SUCCESS;

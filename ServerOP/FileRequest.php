@@ -23,11 +23,14 @@ class FileRequestRespond extends ServerRespond
 
     public static function getDir($parentDirID)
     {
-        //Fetch dir from db
-        $dirList = FileAction::scanDir($parentDirID);
+        $dirList = null;
 
-        //result
-//        $result = array();
+        //Fetch dir from db
+        if ($parentDirID != ""){
+            $dirList = FileAction::scanDir($parentDirID);
+        }else{
+            $dirList = array();
+        }
 
         //Respond
         self::doRespond(self::createArray(ActionType::FILE_REQUEST_DIR, $dirList));
@@ -49,8 +52,9 @@ class FileRequestRespond extends ServerRespond
 
         //Generate
         $tmpArr = array();
+        $arr = [Key::HAS_CHILD=>false,Key::CHILDREN=>[],Key::OPEN=>false];
         foreach ($list as $name) {
-            array_push($tmpArr, $name);
+            array_push($tmpArr, array_merge($name,$arr));
         }
         $fileJsonArray[Key::DATA] = $tmpArr;
 

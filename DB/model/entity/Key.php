@@ -24,4 +24,7 @@ class Key
     const NAME = "name";
     const DIRS = "dirs";
     const WITH_COOKIE = "withCookie";
+    const HAS_CHILD = "hasChild";
+    const CHILDREN = "children";
+    const OPEN = "open";
 }

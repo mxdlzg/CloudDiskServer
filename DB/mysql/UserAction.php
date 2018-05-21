@@ -44,6 +44,14 @@ class DBUserAction implements LoginStd{
         return new DBResult(new DBUserResult(false,false));
     }
 
+    public static function addUser($userName,$encryptedPass){
+        $db = new DB();
+        $result = $db->instance->insert("cd_user", [
+            "User" => $userName,
+            "Pass_En" => $encryptedPass,
+        ]);
+    }
+
     /**
      * @param $timeStamp
      * @param $randomStr

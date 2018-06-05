@@ -19,6 +19,7 @@ if ($type === "login"){
     UserRequestRespond::doLogin($_POST["user"],$_POST["pass"]);
 }else{
     if (!isset($_SESSION[Key::TOKEN])){
+        echo count($_SESSION);
         $rst = array();
         $rst[Key::TYPE] = ActionType::LOGOUT;
         $rst[Key::STATUS] = Status::TOKEN_NOT_EXISTED;

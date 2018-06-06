@@ -41,7 +41,7 @@ if ($type === "login"){
         case "login":
             break;
         case "logout":
-            UserRequestRespond::doLogout($_POST["token"],$_POST["user"]);
+            UserRequestRespond::doLogout($_COOKIE["token"],$_COOKIE["user"]);
             break;
         case "getDir":
             FileRequestRespond::getDir($_POST[Key::PARENT_DIR_ID]);

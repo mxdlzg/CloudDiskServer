@@ -26,4 +26,7 @@ class Status{
     const LOGIN_SUCCESS = 5;
     const HAS_LOGIN = 6;
     const LOGIN_FAIL = 7;
+    const LOGOUT_SUCCESS = 8;
+    const ALREADY_LOGOUT = 9;
+    const LOGOUT_FAIL = 10;
 }

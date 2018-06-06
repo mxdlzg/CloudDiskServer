@@ -16,8 +16,5 @@ class DBResult
      * DBResult constructor.
      * @param null $data
      */
-    public function __construct($data)
-    {
-        $this->data = $data;
-    }
+
 }

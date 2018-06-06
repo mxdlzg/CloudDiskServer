@@ -26,12 +26,15 @@ class UserRequestRespond extends ServerRespond{
         $result = array();
         $result[Key::TYPE] = ActionType::LOGIN_RESULT;
 
-        if ($action->checkUser($userName,$pass)){
+        $actionResult = $action->checkUser($userName,$pass);
+        if ($actionResult != null){
             $token = md5($userName);    //TODO::arithmetic
             if (!isset($_SESSION[Key::TOKEN])){
                 //SET
                 $_SESSION[Key::TOKEN] = $token;
                 setcookie(Key::TOKEN,$token,time()+3600,"/");
+                setcookie(Key::User,$userName,time()+3600,"/");
+                setcookie(Key::Start_Node_ID,$actionResult,time()+3600,"/");
                 //Result
                 $result[Key::TOKEN] = $_SESSION["token"];
                 $result[Key::STATUS] = Status::LOGIN_SUCCESS;
@@ -62,12 +65,18 @@ class UserRequestRespond extends ServerRespond{
             if (isset($_SESSION[Key::TOKEN])){
                 session_unset();
                 session_destroy();
+                $result[Key::STATUS] = Status::LOGOUT_SUCCESS;
                 $result[Key::MSG] = "注销成功";
             }else{
+                $result[Key::STATUS] = Status::ALREADY_LOGOUT;
                 $result[Key::MSG] = "用户已经注销";
             }
         }else{
-            $result[Key::MSG] = "令牌匹配失败，未识别注销请求";
+            //TODO::正式运行删除此处
+            session_unset();
+            session_destroy();
+            $result[Key::STATUS] = Status::LOGOUT_FAIL;
+            $result[Key::MSG] = "令牌匹配失败，未识别注销请求，已删除此次请求用户登录信息";
         }
         $respondAction->doRespond($result);
     }
@@ -80,10 +89,10 @@ class UserRequestRespond extends ServerRespond{
      */
     function checkUser($user,$pass){
         $rst = DBUserAction::checkUser($user,md5($pass)); #type: DBUserResult
-        if ($rst->data->userExisted && $rst->data->passValid){
-            return true;
+        if ($rst->userExisted && $rst->passValid){
+            return $rst->startID;
         }
-        return false;
+        return null;
     }
 
 }

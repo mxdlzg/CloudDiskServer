@@ -26,3 +26,4 @@ define("Cache_ID","Cache_ID");
 define("Oss_Request_Url","Oss_Request_Url");
 define("Cache_Size","Cache_Size");
 define("Cache_Time","Cache_Time");
+define("Start_Node_ID","Start_Node_ID");

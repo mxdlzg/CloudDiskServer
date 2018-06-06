@@ -27,4 +27,6 @@ class Key
     const HAS_CHILD = "hasChild";
     const CHILDREN = "children";
     const OPEN = "open";
+    const Start_Node_ID = "startID";
+    const User = "user";
 }

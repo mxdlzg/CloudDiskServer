@@ -9,10 +9,14 @@
 
 require_once __ROOT__."/DB/mysql/DBStd.php";
 require_once __ROOT__."/DB/mysql/DB.php";
+require_once __ROOT__."/DB/mysql/DBKey.php";
+require_once __ROOT__."/DB/model/entity/DBResult.php";
 
-class DBUserResult{
+
+class DBUserResult extends DBResult {
     public $userExisted = false;
     public $passValid = false;
+    public $startID = '';
 
     /**
      * DBUserResult constructor.
@@ -39,9 +43,12 @@ class DBUserAction implements LoginStd{
         $data = $db->instance->select("cd_user",["User_ID"],["User"=>$userName,"Pass_En"=>$encryptedPass]);
 
         if (count($data) == 1){
-            return new DBResult(new DBUserResult(true,true));
+            $result = new DBUserResult(true,true);
+            $userStartData = $db->instance->select("cd_user_start",[Start_Node_ID],["User_ID"=>$data[0]]);
+            $result->startID = $userStartData[0][Start_Node_ID];
+            return $result;
         }
-        return new DBResult(new DBUserResult(false,false));
+        return new DBUserResult(false,false);
     }
 
     public static function addUser($userName,$encryptedPass){

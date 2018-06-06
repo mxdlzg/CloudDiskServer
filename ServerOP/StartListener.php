@@ -19,7 +19,7 @@ if ($type === "login"){
     UserRequestRespond::doLogin($_POST["user"],$_POST["pass"]);
 }else{
     if (!isset($_SESSION[Key::TOKEN])){
-        echo count($_SESSION);
+        //echo count($_SESSION);
         $rst = array();
         $rst[Key::TYPE] = ActionType::LOGOUT;
         $rst[Key::STATUS] = Status::TOKEN_NOT_EXISTED;
@@ -48,6 +48,12 @@ if ($type === "login"){
             break;
         case "getFile":
             FileRequestRespond::getFile($_POST[Key::PARENT_DIR_ID]);
+            break;
+        case "getAll":
+            FileRequestRespond::getAll($_POST[Key::PARENT_DIR_ID]);
+            break;
+        case "getDirAndFile":
+            FileRequestRespond::getAll($_POST[Key::PARENT_DIR_ID]);
             break;
         case "download":
             FileRequestRespond::createDownloadLink($_POST[Key::DATA]);

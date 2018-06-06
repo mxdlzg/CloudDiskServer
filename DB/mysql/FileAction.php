@@ -28,16 +28,11 @@ class FileAction
         ], [
             cd_tree . dot . Node_ID."(".Key::NODE_ID.")",
             cd_directory . dot . Directory_Name."(".Key::NAME.")",
+            cd_directory . dot . Type."(".Key::TYPE.")",
         ], [
             Node_Type => "dir",
             Ancestor_Node_ID => $parentNodeID,
         ]);
-
-        $result = array();
-//        $result["node_id"] = $nodeIDs[Node_ID];
-//        $result["directory_name"] = $nodeID_Name[Directory_Name];
-
-        //return
         return $rst;
     }
 
@@ -48,9 +43,9 @@ class FileAction
         $rst = $db->instance->select(cd_tree, [
             left_join . cd_file => [Node_True_ID => File_ID],
         ], [
-            cd_tree . dot . Node_ID,
-            cd_file . dot . File_Name,
-            cd_file . dot . File_Type,
+            cd_tree . dot . Node_ID."(".Key::NODE_ID.")",
+            cd_file . dot . File_Name."(".Key::NAME.")",
+            cd_file . dot . File_Type."(".Key::TYPE.")",
         ], [
             Node_Type => "file",
             Ancestor_Node_ID => $parentNodeID,

@@ -45,6 +45,28 @@ class FileRequestRespond extends ServerRespond
         self::doRespond(self::createArray(ActionType::FILE_REQUEST_FILE, $fileList));
     }
 
+
+    public static function getAll($parentDirID)
+    {
+        $list = null;
+
+        if ($parentDirID != ""){
+            //Fetch dir from db
+            $dirList = FileAction::scanDir($parentDirID);
+
+            //Fetch dir from db
+            $fileList = FileAction::scanFile($parentDirID);
+
+            $list = array_merge($dirList,$fileList);
+        }else{
+            $list = array();
+        }
+
+        //Respond
+        self::doRespond(self::createArray(ActionType::FILE_REQUEST_FILE_DIR, $list));
+    }
+
+
     public static function createArray($type, $list)
     {
         $fileJsonArray = array();
@@ -186,5 +208,6 @@ class FileRequestRespond extends ServerRespond
             return null;
         }
     }
+
 
 }

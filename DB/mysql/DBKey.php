@@ -18,6 +18,7 @@ define("Ancestor_Node_ID","Ancestor_Node_ID");
 define("Directory_ID","Directory_ID");
 define("Directory_Name","Directory_Name");
 define("Node_True_ID","Node_True_ID");
+define("Type","Type");
 define("cd_file","cd_file");
 define("File_ID","File_ID");
 define("cd_zip_cache","cd_zip_cache");

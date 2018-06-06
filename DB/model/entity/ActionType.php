@@ -15,6 +15,7 @@ class ActionType
     const FILE_REQUEST_DIR = 4;
     const FILE_REQUEST_FILE = 5;
     const FILE_DOWNLOAD = 6;
+    const FILE_REQUEST_FILE_DIR = 8;
 }
 
 class Status{

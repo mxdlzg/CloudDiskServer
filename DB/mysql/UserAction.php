@@ -17,6 +17,7 @@ class DBUserResult extends DBResult {
     public $userExisted = false;
     public $passValid = false;
     public $startID = '';
+    public $userID;
 
     /**
      * DBUserResult constructor.
@@ -46,6 +47,7 @@ class DBUserAction implements LoginStd{
             $result = new DBUserResult(true,true);
             $userStartData = $db->instance->select("cd_user_start",[Start_Node_ID],["User_ID"=>$data[0]]);
             $result->startID = $userStartData[0][Start_Node_ID];
+            $result->userID = $data[0]['User_ID'];
             return $result;
         }
         return new DBUserResult(false,false);

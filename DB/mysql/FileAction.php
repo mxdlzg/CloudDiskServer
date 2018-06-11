@@ -119,4 +119,69 @@ class FileAction
             return null;
         }
     }
+
+    public static function putFile($file, $parentNodeID, $userID)
+    {
+        //TODO::插入文件，插入树节点关系
+        $db = new DB();
+
+        $fileResult = $db->instance->insert(
+            cd_file,
+            [
+                File_Name=>$file["name"],
+                File_Type=>$file['ext'],
+                File_Size=>$file['size'],
+                Uploader=>$userID,
+                Description=>'',
+                File_ID=>$file["md5"]
+            ]
+        );
+        $treeResult = $db->instance->insert(
+            cd_tree,
+            [
+                Node_True_ID=>$file['md5'],
+                Node_Type=>'file',
+                Ancestor_Node_ID=>$parentNodeID
+            ]
+        );
+        if (count($fileResult)>0 && count($treeResult)>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public static function uploadAllowed($parentNodeID, $currentUser)
+    {
+        $db = new DB();
+        $result = $db->instance->select(view_dir_user,
+            [
+                Belong_User_ID
+            ],
+            [
+                User=>$currentUser,
+                Node_ID=>$parentNodeID
+            ]);
+        if (count($result)>0){
+            return true;
+        }
+        return false;
+    }
+
+    public static function fileExist($parentNodeID, $fileMd5)
+    {
+        $db = new DB();
+        $result = $db->instance->select(view_file_treeAncestor,
+            [
+                Node_ID
+            ],
+            [
+                Ancestor_Node_ID=>$parentNodeID,
+                File_ID=>$fileMd5
+            ]);
+        if (count($result)>0){
+            return true;
+        }
+        return false;
+    }
 }

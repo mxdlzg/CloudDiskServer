@@ -29,4 +29,6 @@ class Key
     const OPEN = "open";
     const Start_Node_ID = "startID";
     const User = "user";
+    const PARENT_NODE_ID = "parentNodeID";
+    const UserID = "userID";
 }

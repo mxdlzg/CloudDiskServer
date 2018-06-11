@@ -6,7 +6,14 @@
  * Time: 14:29
  */
 
-require_once "../DB/model/entity/Config.php";
+require_once "../Respond.php";
+require_once "../../Global.php";
+require_once "../../DB/model/entity/Config.php";
+require_once __ROOT__."/DB/model/entity/Key.php";
+require_once __ROOT__."/lib/aliyun-oss-php-sdk-2.3.0.phar";
+
+use OSS\Core\OssException;
+use OSS\OssClient;
 
 class OSSKey extends ServerRespond
 {
@@ -133,6 +140,61 @@ class OSSCallback
         } else {
             //header("http/1.1 403 Forbidden");
             exit();
+        }
+    }
+}
+
+class OSSHandler{
+    private $bucket;
+    private $ossClient;
+
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * Init Oss Client
+     */
+    function initOssClient()
+    {
+        try {
+            $this->bucket = bucketName;
+            $this->ossClient = new OssClient(accessKeyId, accessKeySecret, serverUseEndpoint);
+        } catch (OssException $e) {
+            print $e->getMessage();
+        }
+    }
+
+    /**
+     * Cal file md5
+     * @param $tmp_name
+     * @return string
+     */
+    public function calFileMd5($tmp_name)
+    {
+        $md5 = md5_file($tmp_name);
+        if ($md5){
+            return $md5;
+        }
+        return "";
+    }
+
+    /**
+     * Upload single file to oss
+     * @param $fileName
+     * @param $filePath
+     * @return null
+     */
+    public function uploadFile($fileName, $filePath)
+    {
+        try{
+            $result = $this->ossClient->uploadFile($this->bucket, ossAimDir.$fileName, $filePath);
+            return $result;
+        } catch(OssException $e) {
+            printf(__FUNCTION__ . ": FAILED\n");
+            printf($e->getMessage() . "\n");
+            return ["success"=>false,"msg"=>$e->getMessage()];
         }
     }
 }

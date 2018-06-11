@@ -12,6 +12,10 @@ define("cd_tree","cd_tree");
 define("Node_ID","Node_ID");
 define("File_Name","File_Name");
 define("File_Type","File_Type");
+define("File_Size","File_Size");
+define('Uploader','Uploader');
+define('Description','Description');
+
 define("Node_Type","Node_Type");
 define("Ancestor_ID","Ancestor_ID");
 define("Ancestor_Node_ID","Ancestor_Node_ID");
@@ -27,3 +31,7 @@ define("Oss_Request_Url","Oss_Request_Url");
 define("Cache_Size","Cache_Size");
 define("Cache_Time","Cache_Time");
 define("Start_Node_ID","Start_Node_ID");
+define("view_dir_user","view_dir_user");
+define("Belong_User_ID","Belong_User_ID");
+define("User","User");
+define("view_file_treeAncestor","view_file_treeAncestor");

@@ -32,6 +32,7 @@
 require_once "handler.php";
 require_once "../../Global.php";
 
+error_reporting(E_ALL^E_NOTICE^E_WARNING);
 
 $uploader = new UploadHandler();
 
@@ -45,7 +46,7 @@ $uploader->sizeLimit = null;
 $uploader->inputName = "qqfile"; // matches Fine Uploader's default inputName value by default
 
 // If you want to use the chunking/resume feature, specify the folder to temporarily save parts.
-$uploader->chunksFolder = "chunks";
+$uploader->chunksFolder = __ROOT__."/ServerOP/tmp/uploaderTmp/chunks/";
 
 $method = get_request_method();
 
@@ -84,14 +85,19 @@ if ($method == "OPTIONS"){
 
 if ($method == "POST") {
     header("Content-Type: text/plain");
+    header('Access-Control-Allow-Origin: '.$_SERVER['HTTP_ORIGIN']);
+    header("Access-Control-Allow-Credentials: true");
+    header('Access-Control-Allow-Headers: *');
+
     // Assumes you have a chunking.success.endpoint set to point here with a query parameter of "done".
     // For example: /myserver/handlers/endpoint.php?done
     if (isset($_GET["done"])) {
-        $result = $uploader->combineChunks("files");
+        $result = $uploader->combineChunks(__ROOT__."/ServerOP/tmp/uploaderTmp/");
     }
     // Handles upload requests
     else {
         $path = __ROOT__."/ServerOP/tmp/uploaderTmp/";
+        //$chunkFolder = __ROOT__."/ServerOP/tmp/uploaderTmp/chunks/";
 //        file_put_contents('endpoint log.txt',$path);
 //         Call handleUpload() with the name of the folder, relative to PHP's getcwd()
         $result = $uploader->handleUpload($path);
@@ -104,7 +110,8 @@ if ($method == "POST") {
 }
 // for delete file requests
 else if ($method == "DELETE") {
-    $result = $uploader->handleDelete("files");
+    //$result = $uploader->handleDelete("files");
+    $result = ["success"=>false,"msg"=>"Not supported!!"];
     echo json_encode($result);
 }
 else {

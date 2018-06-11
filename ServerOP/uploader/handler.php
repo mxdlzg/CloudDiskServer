@@ -1,5 +1,8 @@
 <?php
 
+require_once "../OSS.php";
+require_once "../../DB/mysql/FileAction.php";
+
 /**
  * Do not use or reference this directly from your client-side code.
  * Instead, this should be required via the endpoint.php or endpoint-cors.php
@@ -81,9 +84,42 @@ class UploadHandler {
             unlink($targetPath);
             http_response_code(413);
             return array("success" => false, "uuid" => $uuid, "preventRetry" => true);
-        }
+        }else{
+            //截留，上传
+            $parentNodeID = $_POST[Key::PARENT_NODE_ID];
+            $currentUser = $_POST[Key::User];
+            $currentUserID = $_POST[Key::UserID];
+            if (FileAction::uploadAllowed($parentNodeID,$currentUser)){
+                //OSS           //TODO::截留，上传至OSS，非保存到服务器
+                $oss = new OSSHandler();
+                $tmpFile = $targetPath;
 
-        return array("success" => true, "uuid" => $uuid);
+                //Cal file md5
+                $fileMd5 = $oss->calFileMd5($tmpFile);
+                if (FileAction::fileExist($parentNodeID,$fileMd5)){
+                    return array("success" => true, "uuid" => $uuid, "msg"=>'极速上传完毕');
+                }else{
+                    $oss->initOssClient();
+                    //Upload to oss
+                    $uploadResult = $oss->uploadFile($fileMd5,$tmpFile);
+
+                    //Write db
+                    if ($uploadResult['info']['http_code'] == 200){
+                        $file['size'] = $_POST['qqtotalfilesize'];
+                        $file["ext"] = substr(strrchr($this->uploadName, '.'), 1);
+                        $file['md5'] = $fileMd5;
+                        $file["name"] = str_replace(".".$file['ext'],'',$this->uploadName);
+                        if (FileAction::putFile($file,$parentNodeID,$currentUserID)){
+                            return array("success" => true, "uuid" => $uuid, "msg"=>'上传完毕');
+                        }
+                    }
+                }
+            }else{
+                return array("success" => false, "uuid" => $uuid, "msg"=>'用户信息不匹配，禁止上传');
+            }
+
+            return array("success" => true, "uuid" => $uuid);
+        }
     }
 
     /**
@@ -186,13 +222,8 @@ class UploadHandler {
             }
 
             $target = $targetFolder.'/'.$partIndex;
-
-            //TODO::截留，上传至OSS，非保存到服务器
-            $success = move_uploaded_file($_FILES[$this->inputName]['tmp_name'], $target);
-
-
+            move_uploaded_file($_FILES[$this->inputName]['tmp_name'], $target);
             return array("success" => true, "uuid" => $uuid);
-
         }
         else {
         # non-chunked upload
@@ -211,9 +242,37 @@ class UploadHandler {
                 }
                 //TODO::安装部署的时候根据系统环境决定是否使用iconv函数，使用脚本更改配置 2017.2.14
                 //if windows server (use iconv,convert target to gbk/gb2312) 2017.2.14
-                if (move_uploaded_file($file['tmp_name'], iconv('UTF-8','GB2312',$target))){
+                //move_uploaded_file($file['tmp_name'], iconv('UTF-8','GB2312',$target))
 
-                    return array('success'=> true, "uuid" => $uuid);
+                $parentNodeID = $_POST[Key::PARENT_NODE_ID];
+                $currentUser = $_POST[Key::User];
+                $currentUserID = $_POST[Key::UserID];
+                if (FileAction::uploadAllowed($parentNodeID,$currentUser)){
+                    //OSS           //TODO::截留，上传至OSS，非保存到服务器
+                    $oss = new OSSHandler();
+                    $tmpFile = $_FILES[$this->inputName]['tmp_name'];
+
+                    //Cal file md5
+                    $fileMd5 = $oss->calFileMd5($tmpFile);
+                    if (FileAction::fileExist($parentNodeID,$fileMd5)){
+                        return array("success" => true, "uuid" => $uuid, "msg"=>'极速上传完毕');
+                    }else{
+                        $oss->initOssClient();
+                        //Upload to oss
+                        $uploadResult = $oss->uploadFile($fileMd5,$tmpFile);
+
+                        //Write db
+                        if ($uploadResult['info']['http_code'] == 200){
+                            $file["ext"] = $ext;
+                            $file['md5'] = $fileMd5;
+                            $file["name"] = substr(strrchr($file["name"], '.'), 1);
+                            if (FileAction::putFile($file,$parentNodeID,$currentUserID)){
+                                return array("success" => true, "uuid" => $uuid, "msg"=>'上传完毕');
+                            }
+                        }
+                    }
+                }else{
+                    return array("success" => false, "uuid" => $uuid, "msg"=>'用户信息不匹配，禁止上传');
                 }
             }
 

@@ -34,7 +34,8 @@ class UserRequestRespond extends ServerRespond{
                 $_SESSION[Key::TOKEN] = $token;
                 setcookie(Key::TOKEN,$token,time()+3600,"/");
                 setcookie(Key::User,$userName,time()+3600,"/");
-                setcookie(Key::Start_Node_ID,$actionResult,time()+3600,"/");
+                setcookie(Key::UserID,$actionResult->userID,time()+3600,"/");
+                setcookie(Key::Start_Node_ID,$actionResult->startID,time()+3600,"/");
                 //Result
                 $result[Key::TOKEN] = $_SESSION["token"];
                 $result[Key::STATUS] = Status::LOGIN_SUCCESS;
@@ -90,7 +91,7 @@ class UserRequestRespond extends ServerRespond{
     function checkUser($user,$pass){
         $rst = DBUserAction::checkUser($user,md5($pass)); #type: DBUserResult
         if ($rst->userExisted && $rst->passValid){
-            return $rst->startID;
+            return $rst;
         }
         return null;
     }

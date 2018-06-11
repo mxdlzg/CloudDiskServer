@@ -120,22 +120,24 @@ class FileAction
         }
     }
 
-    public static function putFile($file, $parentNodeID, $userID)
+    public static function putFile($file, $parentNodeID, $userID,$isQuick=false)
     {
         //TODO::插入文件，插入树节点关系
         $db = new DB();
 
-        $fileResult = $db->instance->insert(
-            cd_file,
-            [
-                File_Name=>$file["name"],
-                File_Type=>$file['ext'],
-                File_Size=>$file['size'],
-                Uploader=>$userID,
-                Description=>'',
-                File_ID=>$file["md5"]
-            ]
-        );
+        if (!$isQuick){
+            $fileResult = $db->instance->insert(
+                cd_file,
+                [
+                    File_Name=>$file["name"],
+                    File_Type=>$file['ext'],
+                    File_Size=>$file['size'],
+                    Uploader=>$userID,
+                    Description=>'',
+                    File_ID=>$file["md5"]
+                ]
+            );
+        }
         $treeResult = $db->instance->insert(
             cd_tree,
             [
@@ -144,7 +146,7 @@ class FileAction
                 Ancestor_Node_ID=>$parentNodeID
             ]
         );
-        if (count($fileResult)>0 && count($treeResult)>0){
+        if (count($treeResult)>0){
             return true;
         }else{
             return false;
@@ -168,10 +170,17 @@ class FileAction
         return false;
     }
 
-    public static function fileExist($parentNodeID, $fileMd5)
+    public static function fileExist($parentNodeID,$fileMd5)
     {
         $db = new DB();
-        $result = $db->instance->select(view_file_treeAncestor,
+        $result1 = $db->instance->select(view_file_treeAncestor,
+            [
+                Node_ID
+            ],
+            [
+                File_ID=>$fileMd5
+            ]);
+        $result2 = $db->instance->select(view_file_treeAncestor,
             [
                 Node_ID
             ],
@@ -179,9 +188,6 @@ class FileAction
                 Ancestor_Node_ID=>$parentNodeID,
                 File_ID=>$fileMd5
             ]);
-        if (count($result)>0){
-            return true;
-        }
-        return false;
+        return ["fileExist"=>(count($result1)>0),"nodeExist"=>(count($result2)>0)];
     }
 }

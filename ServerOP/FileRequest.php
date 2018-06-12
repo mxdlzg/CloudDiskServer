@@ -27,7 +27,7 @@ class FileRequestRespond extends ServerRespond
 
         //Fetch dir from db
         if ($parentDirID != ""){
-            $dirList = FileAction::scanDir($parentDirID);
+            $dirList = FileAction::scanDir($parentDirID,$_POST[Key::PARENT_PATH]);
         }else{
             $dirList = array();
         }
@@ -39,7 +39,7 @@ class FileRequestRespond extends ServerRespond
     public static function getFile($parentDirID)
     {
         //Fetch dir from db
-        $fileList = FileAction::scanFile($parentDirID);
+        $fileList = FileAction::scanFile($parentDirID,$_POST[Key::PARENT_PATH]);
 
         //Respond
         self::doRespond(self::createArray(ActionType::FILE_REQUEST_FILE, $fileList));
@@ -49,13 +49,17 @@ class FileRequestRespond extends ServerRespond
     public static function getAll($parentDirID)
     {
         $list = null;
+        $parentDirPath = $_POST[Key::PARENT_PATH];
+        if ($parentDirPath==""){
+            $parentDirPath = "/";
+        }
 
         if ($parentDirID != ""){
             //Fetch dir from db
-            $dirList = FileAction::scanDir($parentDirID);
+            $dirList = FileAction::scanDir($parentDirID,$parentDirPath);
 
             //Fetch dir from db
-            $fileList = FileAction::scanFile($parentDirID);
+            $fileList = FileAction::scanFile($parentDirID,$parentDirPath);
 
             $list = array_merge($dirList,$fileList);
         }else{
@@ -89,7 +93,8 @@ class FileRequestRespond extends ServerRespond
      */
     public static function createDownloadLink($params)
     {
-        $decodeParams = json_decode($params,true);
+        //$decodeParams = json_decode($params,true);
+        $decodeParams = $params;
         $data = $decodeParams[Key::DATA];
 
         //session
@@ -97,31 +102,46 @@ class FileRequestRespond extends ServerRespond
 
         try{
             //if cache existed
-            if (($cacheResult = FileAction::cacheExist($params)) != null){
-                self::doRespond([Key::TYPE => ActionType::FILE_DOWNLOAD, Key::STATUS=>Status::CREATE_DOWNLOAD_LINK_SUCCESS, Key::DATA => $cacheResult[Oss_Request_Url], Key::MSG => "缓存检查完毕，链接返回"]);
+            $List = FileAction::getFileMd5Names($data);//TODO get md5(file and file which in dir)
+            $cacheContentID = md5(join("",array_column($List,Node_True_ID)));
+            if (($cacheResult = FileAction::cacheExist($cacheContentID)) != null){
+                $ZipCacheResult = FileAction::getZipCache($cacheContentID);
+                if ($ZipCacheResult != null){
+                    self::doRespond([Key::TYPE => ActionType::FILE_DOWNLOAD, Key::STATUS=>Status::CREATE_DOWNLOAD_LINK_SUCCESS, Key::DATA => $ZipCacheResult[Oss_Request_Url], Key::MSG => "缓存检查完毕，链接返回"]);
+                }else{
+                    self::doRespond([Key::TYPE => ActionType::FILE_DOWNLOAD, Key::STATUS=>Status::CREATE_DOWNLOAD_LINK_SUCCESS, Key::DATA => $ZipCacheResult[Oss_Request_Url], Key::MSG => "缓存检查完毕，确认缓存存在，但缓存链接查询失败"]);
+                }
             }else{
                 $action = new FileRequestRespond();
-                $action->initOssClient();
 
                 //File hash
-                $List = FileAction::getFileMd5Names($data[Key::FILES]);  //TODO get md5 names
+                if (count($List)==0){
+                    throw new Exception("无法查证文件哈希");
+                }
 
+                //throw new Exception("Test interrupt");
                 //download
+                $action->initOssClient();
                 $action->downloadInServer($List);
 
                 //add hash ,which from db
-                $data[Key::HASH] = array_column($List,Node_True_ID,Node_ID);
+                //$data[Key::HASH] = array_column($List,Node_True_ID);
+                $data[Key::Zip_Content_ID] = md5(join("",$data[Key::HASH]));
 
                 //pack
-                $zipName = $action->pack($data);
-                $result = $action->pushToOSS($zipName);
+                $zipName = $action->pack($data,$List);
+                $zipPath = dirname(__FILE__) . "/tmp/zip/" .$zipName;
+                $zipMd5 = md5_file($zipPath);
+                $result = $action->pushToOSS($zipPath,$zipMd5);
 
                 //return
                 if ($result["info"]["http_code"] == 200) {
-                    self::doRespond([Key::TYPE => ActionType::FILE_DOWNLOAD, Key::STATUS=>Status::CREATE_DOWNLOAD_LINK_SUCCESS, Key::DATA => $result["oss-request-url"], Key::MSG => "打包完毕，链接返回"]);
-
                     //If success, cache zip info into db
-                    FileAction::cacheZIP($result,$params);
+                    if (FileAction::cacheZIP($result,$zipMd5,$cacheContentID)){
+                        self::doRespond([Key::TYPE => ActionType::FILE_DOWNLOAD, Key::STATUS=>Status::CREATE_DOWNLOAD_LINK_SUCCESS, Key::DATA => $result["oss-request-url"], Key::MSG => "打包完毕，链接返回"]);
+                    }else{
+                        self::doRespond([Key::TYPE => ActionType::FILE_DOWNLOAD, Key::STATUS=>Status::CREATE_DOWNLOAD_LINK_SUCCESS, Key::DATA => $result["oss-request-url"], Key::MSG => "打包完毕，链接返回（服务端缓存失败）"]);
+                    }
                 } else {
                     self::doRespond([Key::TYPE => ActionType::FILE_DOWNLOAD, Key::STATUS=>Status::CREATE_DOWNLOAD_LINK_FAIL, Key::DATA => "", Key::MSG => "获取链接失败," . $result["info"]["http_code"]]);
                 }
@@ -152,25 +172,33 @@ class FileRequestRespond extends ServerRespond
             OssClient::OSS_FILE_DOWNLOAD => null,
         );
         for ($i = 0; $i < count($md5Names); $i++) {
-            $options[OssClient::OSS_FILE_DOWNLOAD] = "./tmp/" . $md5Names[$i][Node_True_ID];
-            $this->ossClient->getObject($this->bucket, ossAimDir . $md5Names[$i][Node_True_ID], $options);
+            $name = $md5Names[$i][Node_True_ID];
+            $download = [];
+            if ($name != "" && !array_key_exists($name,$download)){
+                $options[OssClient::OSS_FILE_DOWNLOAD] = "./tmp/" .$name ;
+                if (!file_exists($options[OssClient::OSS_FILE_DOWNLOAD])){
+                    $this->ossClient->getObject($this->bucket, ossAimDir . $name, $options);
+                    $download[$name] = $name;
+                }
+            }
         }
     }
 
     /**
      * 将md5编码的文件按照目标path进行打包
      * @param $data
+     * @param $List
      * @return string
      */
-    function pack($data)
+    function pack($data,$List)
     {
         $rootPath = "./tmp/";
-        $zipName = md5($data[Key::FILES][0][Key::PATH] . time()) . ".zip"; //TODO :: 生成唯一的zip编码
+        $zipName = md5($data[Key::Zip_Content_ID] . time()) . ".zip";
         $zipFilePath = "tmp/zip/" . $zipName;
 
         $dirs = $data[Key::DIRS];
         $files = $data[Key::FILES];
-        $hash = $data[Key::HASH];
+        $hash = array_column($List,Node_True_ID,Node_ID);
 
         $zip = new ZipArchive();
         $openRst = $zip->open($zipFilePath, ZipArchive::OVERWRITE | ZipArchive::CREATE);
@@ -178,13 +206,13 @@ class FileRequestRespond extends ServerRespond
             $tpName = null;
 
             for ($i = 0; $i < count($dirs); $i++) {
-                $tpName = $dirs[$i][Key::PATH] . $dirs[$i][Key::NAME];
+                $tpName = $dirs[$i][Key::PATH];
                 $zip->addEmptyDir($tpName);
             }
             for ($i = 0; $i < count($files); $i++) {
                 $tpName = $rootPath . $hash[$files[$i][Key::NODE_ID]];
                 if (is_file($tpName)) {
-                    $zip->addFile($tpName, $files[$i][Key::PATH] . $files[$i][Key::NAME]);
+                    $zip->addFile($tpName, $files[$i][Key::PARENT_PATH]);
                 }
             }
             $zip->close(); //关闭处理的zip文件
@@ -194,13 +222,14 @@ class FileRequestRespond extends ServerRespond
 
     /**
      * @param $zipName
+     * @param $zipMd5
      * @return string
      */
-    function pushToOSS($zipName)
+    function pushToOSS($zipName,$zipMd5)
     {
-        $object = ossZipAimDir . $zipName;
+        $object = ossZipAimDir . $zipMd5.".zip";
         try {
-            $result = $this->ossClient->uploadFile($this->bucket, $object, dirname(__FILE__) . "/tmp/zip/" . $zipName);
+            $result = $this->ossClient->uploadFile($this->bucket, $object, $zipName);
             return $result;
         } catch (OssException $exception) {
             printf(__FUNCTION__ . ": FAILED\n");

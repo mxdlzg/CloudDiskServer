@@ -17,7 +17,7 @@ class Key
     const DATA = "data";
     const CLIENT_TYPE = "clientType";
     const FILES = "files";
-    const NODE_ID = "nodeId";
+    const NODE_ID = "nodeID";
     const PATH = "path";
     const BUCKET_PATH = "bucketPath";
     const HASH = "hash";
@@ -31,4 +31,6 @@ class Key
     const User = "user";
     const PARENT_NODE_ID = "parentNodeID";
     const UserID = "userID";
+    const Zip_Cache_Hash_ID = "zipCacheID";
+    const Zip_Content_ID = "zipContentID";
 }

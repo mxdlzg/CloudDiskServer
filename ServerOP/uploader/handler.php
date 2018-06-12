@@ -96,8 +96,23 @@ class UploadHandler {
 
                 //Cal file md5
                 $fileMd5 = $oss->calFileMd5($tmpFile);
-                if (FileAction::fileExist($parentNodeID,$fileMd5)){
-                    return array("success" => true, "uuid" => $uuid, "msg"=>'极速上传完毕');
+
+                //Exist
+                $existResult = FileAction::fileExist($parentNodeID,$fileMd5);
+                if ($existResult["fileExist"]){
+                    if (!$existResult["nodeExist"]){
+                        //添加节点关系之后即可返回
+                        $file["ext"] = substr(strrchr($this->uploadName, '.'), 1);
+                        $file['md5'] = $fileMd5;
+                        $file["name"] = str_replace(".".$file["ext"],'',$this->uploadName);
+                        if (FileAction::putFile($file,$parentNodeID,$currentUserID,true)){
+                            return array("success" => true, "uuid" => $uuid, "msg"=>'极速上传完毕');
+                        }else{
+                            return array("success" => false, "uuid" => $uuid, "msg"=>'极速上传失败');
+                        }
+                    }else{
+                        return array("success" => true, "uuid" => $uuid, "msg"=>'极速上传完毕');
+                    }
                 }else{
                     $oss->initOssClient();
                     //Upload to oss

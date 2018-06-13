@@ -15,7 +15,7 @@ class FileAction
      * @param $parentDirPath
      * @return array
      */
-    public static function scanDir($parentNodeID,$parentDirPath)
+    public static function scanDir($parentNodeID, $parentDirPath)
     {
         //db
         $db = new DB();
@@ -34,13 +34,13 @@ class FileAction
             Node_Type => "dir",
             Ancestor_Node_ID => $parentNodeID,
         ]);
-        for ($i = 0; $i<count($rst);$i++){
-            $rst[$i][Key::PARENT_PATH] = $parentDirPath.$rst[$i][Key::NAME]."/";
+        for ($i = 0; $i < count($rst); $i++) {
+            $rst[$i][Key::PARENT_PATH] = $parentDirPath . $rst[$i][Key::NAME] . "/";
         }
         return $rst;
     }
 
-    public static function scanFile($parentNodeID,$parentDirPath)
+    public static function scanFile($parentNodeID, $parentDirPath)
     {
         $db = new DB();
 
@@ -55,8 +55,8 @@ class FileAction
             Node_Type => "file",
             Ancestor_Node_ID => $parentNodeID,
         ]);
-        for ($i = 0; $i<count($rst);$i++){
-            $rst[$i][Key::PARENT_PATH] = $parentDirPath.$rst[$i][Key::NAME].".".$rst[$i][Key::TYPE];
+        for ($i = 0; $i < count($rst); $i++) {
+            $rst[$i][Key::PARENT_PATH] = $parentDirPath . $rst[$i][Key::NAME] . "." . $rst[$i][Key::TYPE];
         }
         //return
         return $rst;
@@ -185,10 +185,10 @@ class FileAction
 
         //Files in dir
         $result = [];
-        foreach ($dirList as $item){
-            $result = array_merge($result,self::scanFileMd5($db,$item[Key::NODE_ID]));
+        foreach ($dirList as $item) {
+            $result = array_merge($result, self::scanFileMd5($db, $item[Key::NODE_ID]));
         }
-        $result = array_merge($result,$dbResult);
+        $result = array_merge($result, $dbResult);
         return $result;
     }
 
@@ -209,8 +209,8 @@ class FileAction
                 File_Type
             ],
             [
-                Ancestor_Node_ID=>$parentNodeID,
-                Node_Type=>"file"
+                Ancestor_Node_ID => $parentNodeID,
+                Node_Type => "file"
             ]
         );
         $dirs = $db->instance->select(
@@ -221,12 +221,12 @@ class FileAction
                 Directory_Name,
             ],
             [
-                Ancestor_Node_ID=>$parentNodeID,
-                Node_Type=>"dir"
+                Ancestor_Node_ID => $parentNodeID,
+                Node_Type => "dir"
             ]
         );
-        foreach ($dirs as $item){
-            $result = array_merge($result,self::scanFileMd5($db,$item[Key::NODE_ID]));
+        foreach ($dirs as $item) {
+            $result = array_merge($result, self::scanFileMd5($db, $item[Key::NODE_ID]));
         }
 //        for ($i=0;$i<count($result);$i++){
 //            $result[$i][$result[$i][Node_ID]] = $result[$i][Node_True_ID];
@@ -248,12 +248,12 @@ class FileAction
             cd_zip_cache,
             [
                 Cache_ID => $md5,
-                Cache_Content_ID=>$contentMd5,
+                Cache_Content_ID => $contentMd5,
                 Oss_Request_Url => $result["oss-request-url"],
                 Cache_Size => $result["info"]["size_upload"]
             ]
         );
-        return count($result)>0;
+        return count($result) > 0;
     }
 
     public static function getZipCache($cacheContentID)
@@ -263,18 +263,37 @@ class FileAction
         $result = $db->instance->select(
             cd_zip_cache,
             [
-                Cache_ID ,
+                Cache_ID,
                 Cache_Content_ID,
                 Oss_Request_Url,
                 Cache_Size
             ],
             [
-                Cache_Content_ID=>$cacheContentID
+                Cache_Content_ID => $cacheContentID
             ]
         );
-        if (count($result)>0){
+        if (count($result) > 0) {
             return $result[0];
         }
         return null;
+    }
+
+    public static function rename($NODE_ID, $File_Type, $New_Name)
+    {
+        $db = new DB();
+        $result = $db->instance->update(cd_tree,
+            [
+                Node_Name => $New_Name
+            ],
+            [
+                Node_ID => $NODE_ID
+            ]
+        );
+
+        if ($result > 0){
+            return ["success"=>true];
+        }else{
+            return ["success"=>false];
+        }
     }
 }

@@ -255,5 +255,19 @@ class FileRequestRespond extends ServerRespond
         }
     }
 
+    public static function itemRename($DATA)
+    {
+        $result = FileAction::rename($DATA[Key::NODE_ID],$DATA[Key::File_Type],$DATA[Key::New_Name]);
+        if ($result["success"]){
+            self::doRespond([Key::TYPE => ActionType::RENAME,
+                Key::STATUS=>Status::SUCCESS,
+                Key::MSG => "重命名完毕"]);
+        }else{
+            self::doRespond([Key::TYPE => ActionType::RENAME,
+                Key::STATUS=>Status::FAIL,
+                Key::MSG => "重命名失败"]);
+        }
+    }
+
 
 }

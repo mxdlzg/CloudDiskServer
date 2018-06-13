@@ -33,4 +33,6 @@ class Key
     const UserID = "userID";
     const Zip_Cache_Hash_ID = "zipCacheID";
     const Zip_Content_ID = "zipContentID";
+    const File_Type = "fileType";
+    const New_Name = "newName";
 }

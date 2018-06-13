@@ -16,6 +16,7 @@ class ActionType
     const FILE_REQUEST_FILE = 5;
     const FILE_DOWNLOAD = 6;
     const FILE_REQUEST_FILE_DIR = 8;
+    const RENAME = 9;
 }
 
 class Status{
@@ -29,4 +30,6 @@ class Status{
     const LOGOUT_SUCCESS = 8;
     const ALREADY_LOGOUT = 9;
     const LOGOUT_FAIL = 10;
+    const SUCCESS = 11;
+    const FAIL = 12;
 }

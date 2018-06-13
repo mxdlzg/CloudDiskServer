@@ -20,6 +20,7 @@ define("Node_Type","Node_Type");
 define("Ancestor_ID","Ancestor_ID");
 define("Ancestor_Node_ID","Ancestor_Node_ID");
 define("Directory_ID","Directory_ID");
+define("Node_Name","Node_Name");
 define("Directory_Name","Directory_Name");
 define("Node_True_ID","Node_True_ID");
 define("Type","Type");

@@ -48,6 +48,7 @@ class FileAction
             left_join . cd_file => [Node_True_ID => File_ID],
         ], [
             cd_tree . dot . Node_ID . "(" . Key::NODE_ID . ")",
+            cd_tree . dot . Node_True_ID . "(" . Node_True_ID . ")",
             cd_file . dot . File_Name . "(" . Key::NAME . ")",
             cd_file . dot . File_Type . "(" . Key::TYPE . ")",
         ], [
@@ -136,14 +137,14 @@ class FileAction
     public static function fileExist($parentNodeID, $fileMd5)
     {
         $db = new DB();
-        $result1 = $db->instance->select(view_file_treeAncestor,
+        $result1 = $db->instance->select(view_file_treeancestor,
             [
                 Node_ID
             ],
             [
                 File_ID => $fileMd5
             ]);
-        $result2 = $db->instance->select(view_file_treeAncestor,
+        $result2 = $db->instance->select(view_file_treeancestor,
             [
                 Node_ID
             ],

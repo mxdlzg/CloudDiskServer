@@ -206,8 +206,9 @@ class FileRequestRespond extends ServerRespond
             $tpName = null;
 
             for ($i = 0; $i < count($dirs); $i++) {
-                $tpName = $dirs[$i][Key::PATH];
+                $tpName = $dirs[$i][Key::PARENT_PATH];
                 $zip->addEmptyDir($tpName);
+                self::packIntoDir($rootPath,$zip,$dirs[$i]);
             }
             for ($i = 0; $i < count($files); $i++) {
                 $tpName = $rootPath . $hash[$files[$i][Key::NODE_ID]];
@@ -218,6 +219,22 @@ class FileRequestRespond extends ServerRespond
             $zip->close(); //关闭处理的zip文件
         }
         return $zipName;
+    }
+
+    private function packIntoDir($rootPath,$zip,$dir){
+        $dirs = FileAction::scanDir($dir[Key::NODE_ID],$dir[Key::PARENT_PATH]);
+        $files = FileAction::scanFile($dir[Key::NODE_ID],$dir[Key::PARENT_PATH]);
+        for ($i = 0; $i < count($dirs); $i++) {
+            $tpName = $dirs[$i][Key::PARENT_PATH];
+            $zip->addEmptyDir($tpName);
+            self::packIntoDir($rootPath,$zip,$dirs[$i]);
+        }
+        for ($i = 0; $i < count($files); $i++) {
+            $tpName = $rootPath . $files[$i][Node_True_ID];
+            if (is_file($tpName)) {
+                $zip->addFile($tpName, $files[$i][Key::PARENT_PATH]);
+            }
+        }
     }
 
     /**

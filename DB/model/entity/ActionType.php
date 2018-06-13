@@ -18,6 +18,7 @@ class ActionType
     const FILE_REQUEST_FILE_DIR = 8;
     const RENAME = 9;
     const CREATE_DIR = 10;
+    const DETAIL = 11;
 }
 
 class Status{

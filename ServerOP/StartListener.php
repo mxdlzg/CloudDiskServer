@@ -64,6 +64,9 @@ if ($type === "login"){
         case "createDir":
             FileRequestRespond::createDir($_POST[Key::DATA]);
             break;
+        case "detail":
+            FileRequestRespond::getItemDetail($_POST[Key::DATA]);
+            break;
         default:
             echo json_decode("{type:-1,msg:'无对应操作'}");
             break;

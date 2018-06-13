@@ -265,7 +265,7 @@ class FileRequestRespond extends ServerRespond
         }else{
             self::doRespond([Key::TYPE => ActionType::RENAME,
                 Key::STATUS=>Status::FAIL,
-                Key::MSG => "重命名失败"]);
+                Key::MSG => $result["msg"]]);
         }
     }
 
@@ -279,7 +279,22 @@ class FileRequestRespond extends ServerRespond
         }else{
             self::doRespond([Key::TYPE => ActionType::CREATE_DIR,
                 Key::STATUS=>Status::FAIL,
-                Key::MSG => "文件夹创建失败"]);
+                Key::MSG => $result["msg"]]);
+        }
+    }
+
+    public static function getItemDetail($DATA)
+    {
+        $result = FileAction::getItemDetail($DATA[Key::NODE_ID],$DATA[Key::File_Type]);
+        if ($result["success"]){
+            self::doRespond([Key::TYPE => ActionType::DETAIL,
+                Key::DATA => $result["result"],
+                Key::STATUS=>Status::SUCCESS,
+                Key::MSG => "详细情况获取完毕"]);
+        }else{
+            self::doRespond([Key::TYPE => ActionType::DETAIL,
+                Key::STATUS=>Status::FAIL,
+                Key::MSG => $result["msg"]]);
         }
     }
 

@@ -284,6 +284,11 @@ class FileAction
     public static function rename($NODE_ID, $File_Type, $New_Name)
     {
         $db = new DB();
+        $exist = $db->instance->select(view_file_treeancestor,[Node_ID],[Node_Name=>$New_Name,File_Type=>$File_Type]);
+        if (count($exist)>0){
+            return ["success" => false,"msg"=>"新文件名与此目录其他文件重名"];
+        }
+
         $result = $db->instance->update(cd_tree,
             [
                 Node_Name => $New_Name
@@ -296,13 +301,18 @@ class FileAction
         if ($result > 0) {
             return ["success" => true];
         } else {
-            return ["success" => false];
+            return ["success" => false,"msg"=>"文件重命名失败"];
         }
     }
 
     public static function createDir($NODE_ID, $UserID, $New_Name)
     {
         $db = new DB();
+
+        $exist = $db->instance->select(cd_tree,[Node_ID],[Node_Name=>$New_Name,Node_Type=>"dir",Ancestor_Node_ID=>$NODE_ID]);
+        if (count($exist)>0){
+            return ["success" => false,"msg"=>"文件夹重名"];
+        }
 
         $dirResult = $db->instance->insert(
             cd_directory,
@@ -324,7 +334,41 @@ class FileAction
         if (count($treeResult) > 0) {
             return ["success"=>true];
         } else {
-            return ["success"=>false];
+            return ["success"=>false,"msg"=>"新建文件夹失败"];
         }
+    }
+
+    public static function getItemDetail($NODE_ID, $File_Type)
+    {
+        $result = null;
+        $db = new DB();
+
+        if ($File_Type == "dir"){
+            $result = $db->instance->select(view_dir_user,
+                [
+                    Node_Name."(name)",
+                    Type."(type)",
+                    Recent_Changed_Date."(changed)",
+                    Created_Date."(created)",
+                    User."(user)",
+                ],
+                [
+                    Node_ID=>$NODE_ID
+                ]);
+        }else{
+            $result = $db->instance->select(view_file_user,
+                [
+                    Node_Name."(name)",
+                    File_Type."(type)",
+                    File_Size."(size)",
+                    Recent_Changed_Date."(changed)",
+                    Created_Date."(created)",
+                    User."(user)",
+                ],
+                [
+                    Node_ID=>$NODE_ID
+                ]);
+        }
+        return ["success"=>true,"result"=>$result];
     }
 }

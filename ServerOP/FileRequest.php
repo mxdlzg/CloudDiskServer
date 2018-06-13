@@ -269,5 +269,19 @@ class FileRequestRespond extends ServerRespond
         }
     }
 
+    public static function createDir($DATA)
+    {
+        $result = FileAction::createDir($DATA[Key::NODE_ID],$DATA[Key::UserID],$DATA[Key::New_Name]);
+        if ($result["success"]){
+            self::doRespond([Key::TYPE => ActionType::CREATE_DIR,
+                Key::STATUS=>Status::SUCCESS,
+                Key::MSG => "文件创建完成"]);
+        }else{
+            self::doRespond([Key::TYPE => ActionType::CREATE_DIR,
+                Key::STATUS=>Status::FAIL,
+                Key::MSG => "文件夹创建失败"]);
+        }
+    }
+
 
 }

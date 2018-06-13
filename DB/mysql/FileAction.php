@@ -28,7 +28,8 @@ class FileAction
             left_join . cd_directory => [Node_True_ID => Directory_ID],
         ], [
             cd_tree . dot . Node_ID . "(" . Key::NODE_ID . ")",
-            cd_directory . dot . Directory_Name . "(" . Key::NAME . ")",
+            cd_tree . dot . Node_Name . "(" . Key::NAME . ")",
+            //cd_directory . dot . Directory_Name . "(" . Key::NAME . ")",
             cd_directory . dot . Type . "(" . Key::TYPE . ")",
         ], [
             Node_Type => "dir",
@@ -48,8 +49,9 @@ class FileAction
             left_join . cd_file => [Node_True_ID => File_ID],
         ], [
             cd_tree . dot . Node_ID . "(" . Key::NODE_ID . ")",
-            cd_tree . dot . Node_True_ID . "(" . Node_True_ID . ")",
-            cd_file . dot . File_Name . "(" . Key::NAME . ")",
+            //cd_tree . dot . Node_True_ID . "(" . Node_True_ID . ")",
+            cd_tree . dot . Node_Name . "(" . Key::NAME . ")",
+            //cd_file . dot . File_Name . "(" . Key::NAME . ")",
             cd_file . dot . File_Type . "(" . Key::TYPE . ")",
         ], [
             Node_Type => "file",
@@ -107,6 +109,7 @@ class FileAction
             [
                 Node_True_ID => $file['md5'],
                 Node_Type => 'file',
+                Node_Name => $file["name"],
                 Ancestor_Node_ID => $parentNodeID
             ]
         );
@@ -290,9 +293,37 @@ class FileAction
             ]
         );
 
-        if ($result > 0){
+        if ($result > 0) {
+            return ["success" => true];
+        } else {
+            return ["success" => false];
+        }
+    }
+
+    public static function createDir($NODE_ID, $UserID, $New_Name)
+    {
+        $db = new DB();
+
+        $dirResult = $db->instance->insert(
+            cd_directory,
+            [
+                Directory_Name => $New_Name,
+                Belong_User_ID=>$UserID,
+            ]
+        );
+        $id = $db->instance->id();
+        $treeResult = $db->instance->insert(
+            cd_tree,
+            [
+                Node_True_ID => $id,
+                Node_Type => 'dir',
+                Node_Name => $New_Name,
+                Ancestor_Node_ID => $NODE_ID
+            ]
+        );
+        if (count($treeResult) > 0) {
             return ["success"=>true];
-        }else{
+        } else {
             return ["success"=>false];
         }
     }

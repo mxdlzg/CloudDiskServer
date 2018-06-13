@@ -61,6 +61,9 @@ if ($type === "login"){
         case "rename":
             FileRequestRespond::itemRename($_POST[Key::DATA]);
             break;
+        case "createDir":
+            FileRequestRespond::createDir($_POST[Key::DATA]);
+            break;
         default:
             echo json_decode("{type:-1,msg:'无对应操作'}");
             break;

@@ -284,9 +284,9 @@ class FileAction
     public static function rename($NODE_ID, $File_Type, $New_Name)
     {
         $db = new DB();
-        $exist = $db->instance->select(view_file_treeancestor,[Node_ID],[Node_Name=>$New_Name,File_Type=>$File_Type]);
-        if (count($exist)>0){
-            return ["success" => false,"msg"=>"新文件名与此目录其他文件重名"];
+        $exist = $db->instance->select(view_file_treeancestor, [Node_ID], [Node_Name => $New_Name, File_Type => $File_Type]);
+        if (count($exist) > 0) {
+            return ["success" => false, "msg" => "新文件名与此目录其他文件重名"];
         }
 
         $result = $db->instance->update(cd_tree,
@@ -301,7 +301,7 @@ class FileAction
         if ($result > 0) {
             return ["success" => true];
         } else {
-            return ["success" => false,"msg"=>"文件重命名失败"];
+            return ["success" => false, "msg" => "文件重命名失败"];
         }
     }
 
@@ -309,16 +309,16 @@ class FileAction
     {
         $db = new DB();
 
-        $exist = $db->instance->select(cd_tree,[Node_ID],[Node_Name=>$New_Name,Node_Type=>"dir",Ancestor_Node_ID=>$NODE_ID]);
-        if (count($exist)>0){
-            return ["success" => false,"msg"=>"文件夹重名"];
+        $exist = $db->instance->select(cd_tree, [Node_ID], [Node_Name => $New_Name, Node_Type => "dir", Ancestor_Node_ID => $NODE_ID]);
+        if (count($exist) > 0) {
+            return ["success" => false, "msg" => "文件夹重名"];
         }
 
         $dirResult = $db->instance->insert(
             cd_directory,
             [
                 Directory_Name => $New_Name,
-                Belong_User_ID=>$UserID,
+                Belong_User_ID => $UserID,
             ]
         );
         $id = $db->instance->id();
@@ -332,9 +332,9 @@ class FileAction
             ]
         );
         if (count($treeResult) > 0) {
-            return ["success"=>true];
+            return ["success" => true];
         } else {
-            return ["success"=>false,"msg"=>"新建文件夹失败"];
+            return ["success" => false, "msg" => "新建文件夹失败"];
         }
     }
 
@@ -343,32 +343,90 @@ class FileAction
         $result = null;
         $db = new DB();
 
-        if ($File_Type == "dir"){
+        if ($File_Type == "dir") {
             $result = $db->instance->select(view_dir_user,
                 [
-                    Node_Name."(name)",
-                    Type."(type)",
-                    Recent_Changed_Date."(changed)",
-                    Created_Date."(created)",
-                    User."(user)",
+                    Node_Name . "(name)",
+                    Type . "(type)",
+                    Recent_Changed_Date . "(changed)",
+                    Created_Date . "(created)",
+                    User . "(user)",
                 ],
                 [
-                    Node_ID=>$NODE_ID
+                    Node_ID => $NODE_ID
                 ]);
-        }else{
+        } else {
             $result = $db->instance->select(view_file_user,
                 [
-                    Node_Name."(name)",
-                    File_Type."(type)",
-                    File_Size."(size)",
-                    Recent_Changed_Date."(changed)",
-                    Created_Date."(created)",
-                    User."(user)",
+                    Node_Name . "(name)",
+                    File_Type . "(type)",
+                    File_Size . "(size)",
+                    Recent_Changed_Date . "(changed)",
+                    Created_Date . "(created)",
+                    User . "(user)",
                 ],
                 [
-                    Node_ID=>$NODE_ID
+                    Node_ID => $NODE_ID
                 ]);
         }
-        return ["success"=>true,"result"=>$result];
+        return ["success" => true, "result" => $result];
+    }
+
+    /**
+     * Delete nodes
+     * TODO::防注入
+     * @param $parentNodeID
+     * @param $nodes
+     * @return array
+     */
+    public static function delete($parentNodeID, $nodes)
+    {
+        $db = new DB();
+        try {
+            $result = $db->instance->query("SELECT deleteNode(" . $parentNodeID . ",'" . $nodes . "')");
+            return ["success" => true];
+        } catch (Exception $e) {
+            return ["success" => false, "msg" => "删除失败，" . $e->getMessage()];
+        }
+    }
+
+    public static function moveItems($parentDirID, $array_column, $isCopy)
+    {
+        $db = new DB();
+        $rst1 = $db->instance->select(cd_tree,
+            [
+                Ancestor_Node_ID,
+                Node_True_ID,
+                Node_Type,
+                Node_Name
+            ],
+            [
+                Node_ID => $array_column
+            ]);
+        if (count($rst1) > 0) {
+            $insertRst = $db->instance->insert(cd_tree,
+                [
+                    Ancestor_Node_ID => $parentDirID,
+                    Node_True_ID => $rst1,
+                    Node_Type => $rst1,
+                    Node_Name => $rst1
+                ]
+            );
+            $deleteRst = null;
+            if (!$isCopy) {
+                $deleteRst = $db->instance->delete(cd_tree,
+                    [
+                        Ancestor_Node_ID => $rst1,
+                        Node_True_ID => $rst1,
+                    ]);
+            }
+            if (count($insertRst)>0){
+                return ['success'=>true,'msg'=>"移动完毕"];
+            }else{
+                return ['success'=>false,'msg'=>"插入节点失败"];
+            }
+        }else{
+            return ['success'=>false,'msg'=>"未找到对应的节点"];
+        }
     }
 }

@@ -298,5 +298,39 @@ class FileRequestRespond extends ServerRespond
         }
     }
 
+    public static function deleteItems($DATA)
+    {
+        $list = $DATA[Key::DATA];
+        $parentNodeID = $DATA[Key::PARENT_NODE_ID];
+        $nodes = join(",",array_column($list,Key::NODE_ID));
+        $result = FileAction::delete($parentNodeID,$nodes);
+        if ($result["success"]){
+            self::doRespond([Key::TYPE => ActionType::DELETE,
+                Key::STATUS=>Status::SUCCESS,
+                Key::MSG => "删除完毕"]);
+        }else{
+            self::doRespond([Key::TYPE => ActionType::DELETE,
+                Key::STATUS=>Status::FAIL,
+                Key::MSG => $result["msg"]]);
+        }
+    }
+
+    public static function moveItems($DATA)
+    {
+        $list = $DATA[Key::DATA][Key::LIST];
+        $isCopy = $DATA[Key::DATA][Key::Duplicate]=='true'?true:false;
+        $parentDirID = $DATA[Key::PARENT_DIR_ID];
+        $result = FileAction::moveItems($parentDirID,array_column($list,Key::NODE_ID),$isCopy);
+        if ($result["success"]){
+            self::doRespond([Key::TYPE => ActionType::MOVE,
+                Key::STATUS=>Status::SUCCESS,
+                Key::MSG => "移动完毕"]);
+        }else{
+            self::doRespond([Key::TYPE => ActionType::MOVE,
+                Key::STATUS=>Status::FAIL,
+                Key::MSG => $result["msg"]]);
+        }
+    }
+
 
 }

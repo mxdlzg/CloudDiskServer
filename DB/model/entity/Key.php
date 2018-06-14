@@ -35,4 +35,6 @@ class Key
     const Zip_Content_ID = "zipContentID";
     const File_Type = "fileType";
     const New_Name = "newName";
+    const Duplicate = "duplicate";
+    const LIST = "list";
 }

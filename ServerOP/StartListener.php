@@ -67,6 +67,12 @@ if ($type === "login"){
         case "detail":
             FileRequestRespond::getItemDetail($_POST[Key::DATA]);
             break;
+        case "delete":
+            FileRequestRespond::deleteItems($_POST[Key::DATA]);
+            break;
+        case "move":
+            FileRequestRespond::moveItems($_POST[Key::DATA]);
+            break;
         default:
             echo json_decode("{type:-1,msg:'无对应操作'}");
             break;

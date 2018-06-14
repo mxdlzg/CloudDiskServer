@@ -19,6 +19,8 @@ class ActionType
     const RENAME = 9;
     const CREATE_DIR = 10;
     const DETAIL = 11;
+    const DELETE = 12;
+    const MOVE = 13;
 }
 
 class Status{

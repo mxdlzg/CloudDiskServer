@@ -96,4 +96,20 @@ class UserRequestRespond extends ServerRespond{
         return null;
     }
 
+    public static function doRegister($user, $password, $invitation)
+    {
+        $action = new UserRequestRespond();
+        $rst = $action->checkUser($user,$password);
+        if (!$rst->userExisted){
+            $rst = DBUserAction::addUser($user,md5($password));
+            if ($rst["success"]){
+                self::doRespond([Key::TYPE=>ActionType::REGISTER, Key::STATUS=>Status::SUCCESS,Key::MSG=>"注册成功"]);
+            }else{
+                self::doRespond([Key::TYPE=>ActionType::REGISTER, Key::STATUS=>Status::FAIL,Key::MSG=>"注册失败，数据写入失败"]);
+            }
+        }else{
+            self::doRespond([Key::TYPE=>ActionType::REGISTER, Key::STATUS=>Status::FAIL,Key::MSG=>"此用户已存在"]);
+        }
+    }
+
 }

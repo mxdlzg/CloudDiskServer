@@ -21,6 +21,7 @@ class ActionType
     const DETAIL = 11;
     const DELETE = 12;
     const MOVE = 13;
+    const REGISTER = 14;
 }
 
 class Status{

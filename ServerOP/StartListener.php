@@ -8,17 +8,19 @@
 require_once "UserRequest.php";
 require_once "FileRequest.php";
 require_once "../DB/model/entity/Key.php";
-error_reporting(E_ALL^E_NOTICE^E_WARNING);
+error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
 //SESSION
 session_start();
 
 //PARAMS
 $type = $_POST[Key::CLIENT_TYPE];
 
-if ($type === "login"){
-    UserRequestRespond::doLogin($_POST["user"],$_POST["pass"]);
-}else{
-    if (!isset($_SESSION[Key::TOKEN])){
+if ($type === "login") {
+    UserRequestRespond::doLogin($_POST["user"], $_POST["pass"]);
+} else if ($type === "register") {
+    UserRequestRespond::doRegister($_POST["user"],$_POST["password"],$_POST["invitation"]);
+} else {
+    if (!isset($_SESSION[Key::TOKEN])) {
         //echo count($_SESSION);
         $rst = array();
         $rst[Key::TYPE] = ActionType::LOGOUT;
@@ -27,7 +29,7 @@ if ($type === "login"){
         ServerRespond::doRespond($rst);
         return;
     }
-    if ($_SESSION[Key::TOKEN] != $_COOKIE[Key::TOKEN]){
+    if ($_SESSION[Key::TOKEN] != $_COOKIE[Key::TOKEN]) {
         session_unset();
         session_destroy();
         $rst = array();
@@ -37,11 +39,13 @@ if ($type === "login"){
         ServerRespond::doRespond($rst);
         return;
     }
-    switch ($type){
+    switch ($type) {
         case "login":
             break;
+        case "register":
+            break;
         case "logout":
-            UserRequestRespond::doLogout($_COOKIE["token"],$_COOKIE["user"]);
+            UserRequestRespond::doLogout($_COOKIE["token"], $_COOKIE["user"]);
             break;
         case "getDir":
             FileRequestRespond::getDir($_POST[Key::PARENT_DIR_ID]);

@@ -55,10 +55,40 @@ class DBUserAction implements LoginStd{
 
     public static function addUser($userName,$encryptedPass){
         $db = new DB();
-        $result = $db->instance->insert("cd_user", [
-            "User" => $userName,
-            "Pass_En" => $encryptedPass,
-        ]);
+        try{
+            $result = $db->instance->insert("cd_user",
+                [
+                    "User" => $userName,
+                    "Pass_En" => $encryptedPass,
+                ]);
+            $id = $db->instance->id();
+            $db->instance->update(cd_user,
+                [
+                    User_ID=>"u".$id
+                ],
+                [
+                    User=>$userName
+                ]);
+            $db->instance->insert(cd_directory,
+                [
+                    Directory_ID=>"Root-u".$id,
+                    Belong_User_ID=>"u".$id
+                ]);
+            $rootDirID = $db->instance->id();
+            $db->instance->insert(cd_tree,
+                [
+                    Node_True_ID=>$rootDirID,
+                    Node_Type=>"dir",
+                ]);
+            $db->instance->insert(cd_user_start,
+                [
+                    User_ID=>"u".$id,
+                    Start_Node_ID=>$rootDirID,
+                ]);
+            return ["success"=>true,"msg"=>"注册成功"];
+        }catch (Exception $exception){
+            return ["success"=>false,"msg"=>"数据处理错误，".$exception->getMessage()];
+        }
     }
 
     /**

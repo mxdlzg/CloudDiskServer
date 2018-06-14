@@ -223,7 +223,7 @@ class FileRequestRespond extends ServerRespond
 
     private function packIntoDir($rootPath,$zip,$dir){
         $dirs = FileAction::scanDir($dir[Key::NODE_ID],$dir[Key::PARENT_PATH]);
-        $files = FileAction::scanFile($dir[Key::NODE_ID],$dir[Key::PARENT_PATH]);
+        $files = FileAction::scanFile($dir[Key::NODE_ID],$dir[Key::PARENT_PATH],true);
         for ($i = 0; $i < count($dirs); $i++) {
             $tpName = $dirs[$i][Key::PARENT_PATH];
             $zip->addEmptyDir($tpName);

@@ -41,22 +41,38 @@ class FileAction
         return $rst;
     }
 
-    public static function scanFile($parentNodeID, $parentDirPath)
+    public static function scanFile($parentNodeID, $parentDirPath,$needTrue=false)
     {
         $db = new DB();
+        $rst = null;
+        if (!$needTrue){
+            $rst = $db->instance->select(cd_tree, [
+                left_join . cd_file => [Node_True_ID => File_ID],
+            ], [
+                cd_tree . dot . Node_ID . "(" . Key::NODE_ID . ")",
+                //cd_tree . dot . Node_True_ID . "(" . Node_True_ID . ")",
+                cd_tree . dot . Node_Name . "(" . Key::NAME . ")",
+                //cd_file . dot . File_Name . "(" . Key::NAME . ")",
+                cd_file . dot . File_Type . "(" . Key::TYPE . ")",
+            ], [
+                Node_Type => "file",
+                Ancestor_Node_ID => $parentNodeID,
+            ]);
+        }else{
+            $rst = $db->instance->select(cd_tree, [
+                left_join . cd_file => [Node_True_ID => File_ID],
+            ], [
+                cd_tree . dot . Node_ID . "(" . Key::NODE_ID . ")",
+                cd_tree . dot . Node_True_ID . "(" . Node_True_ID . ")",
+                cd_tree . dot . Node_Name . "(" . Key::NAME . ")",
+                //cd_file . dot . File_Name . "(" . Key::NAME . ")",
+                cd_file . dot . File_Type . "(" . Key::TYPE . ")",
+            ], [
+                Node_Type => "file",
+                Ancestor_Node_ID => $parentNodeID,
+            ]);
+        }
 
-        $rst = $db->instance->select(cd_tree, [
-            left_join . cd_file => [Node_True_ID => File_ID],
-        ], [
-            cd_tree . dot . Node_ID . "(" . Key::NODE_ID . ")",
-            //cd_tree . dot . Node_True_ID . "(" . Node_True_ID . ")",
-            cd_tree . dot . Node_Name . "(" . Key::NAME . ")",
-            //cd_file . dot . File_Name . "(" . Key::NAME . ")",
-            cd_file . dot . File_Type . "(" . Key::TYPE . ")",
-        ], [
-            Node_Type => "file",
-            Ancestor_Node_ID => $parentNodeID,
-        ]);
         for ($i = 0; $i < count($rst); $i++) {
             $rst[$i][Key::PARENT_PATH] = $parentDirPath . $rst[$i][Key::NAME] . "." . $rst[$i][Key::TYPE];
         }
@@ -404,20 +420,23 @@ class FileAction
                 Node_ID => $array_column
             ]);
         if (count($rst1) > 0) {
-            $insertRst = $db->instance->insert(cd_tree,
-                [
-                    Ancestor_Node_ID => $parentDirID,
-                    Node_True_ID => $rst1,
-                    Node_Type => $rst1,
-                    Node_Name => $rst1
-                ]
-            );
+            $insertRst = null;
+            foreach ($rst1 as $item){
+                $insertRst = $db->instance->insert(cd_tree,
+                    [
+                        Ancestor_Node_ID => $parentDirID,
+                        Node_True_ID => $item[Node_True_ID],
+                        Node_Type => $item[Node_Type],
+                        Node_Name => $item[Node_Name],
+                    ]
+                );
+            }
             $deleteRst = null;
             if (!$isCopy) {
                 $deleteRst = $db->instance->delete(cd_tree,
                     [
-                        Ancestor_Node_ID => $rst1,
-                        Node_True_ID => $rst1,
+                        Ancestor_Node_ID =>array_column($rst1,Ancestor_Node_ID),
+                        Node_True_ID => array_column($rst1,Node_True_ID),
                     ]);
             }
             if (count($insertRst)>0){
